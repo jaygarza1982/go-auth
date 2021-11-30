@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+
+    go-auth:
+        container_name: 'go-auth'
+        build:
+          context: .
+        volumes: 
+            - ./:/app
+        ports:
+            - 8080:8080
+            - 2345:2345
+        command: dlv exec --accept-multiclient --log --headless --continue --listen :2345 --api-version 2 /usr/local/bin/go-auth
+        # env_file: .env
