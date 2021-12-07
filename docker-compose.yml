@@ -12,4 +12,17 @@ services:
             - 8080:8080
             - 2345:2345
         command: dlv exec --accept-multiclient --log --headless --continue --listen :2345 --api-version 2 /usr/local/bin/go-auth
-        # env_file: .env
+        env_file: .env
+        depends_on:
+          - go-auth-mongo
+
+    go-auth-mongo:
+        container_name: "go-auth-mongo"
+        image: mongo:4.0.23-xenial
+        hostname: go-auth-mongo
+        ports:
+            - 27017:27017
+        volumes:
+            - ./mongo:/data/db
+        env_file: .env
+        restart: unless-stopped
