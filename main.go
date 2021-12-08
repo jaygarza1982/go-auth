@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jaygarza1982/go-auth/controllers"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -14,6 +15,8 @@ import (
 func main() {
 
 	uri := os.Getenv("MONGO_URL")
+	dbName := os.Getenv("MONGO_INITDB_DATABASE")
+
 	fmt.Printf("Attemping to connect to MongoDB on %v\n", uri)
 	if uri == "" {
 		log.Fatal("You must set your 'MONGO_URL' environmental variable.")
@@ -24,23 +27,13 @@ func main() {
 	}
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
-			fmt.Println("Could not connect to MongoDB!")
+			fmt.Printf("Could not connect to MongoDB! %v", err)
 			panic(err)
 		}
 	}()
-	coll := client.Database("sample_mflix").Collection("movies")
 
-	type test struct {
-		Title string
-	}
-
-	s := test{Title: "Back to the Future"}
-	if result, err := coll.InsertOne(context.TODO(), s); err == nil {
-		fmt.Printf("Result of insert was %v", result)
-	}
-	if err != nil {
-		panic(err)
-	}
+	db := client.Database(dbName)
+	usersCollection := db.Collection("users")
 
 	ginServer := gin.Default()
 
@@ -48,6 +41,9 @@ func main() {
 		status := "Status is OK"
 		c.JSON(200, gin.H{"message": status})
 	})
+
+	ginServer.GET("/api/users/find", controllers.Find(usersCollection))
+	ginServer.GET("/api/users/register", controllers.Register(usersCollection))
 
 	ginServer.Run(":8080")
 }
