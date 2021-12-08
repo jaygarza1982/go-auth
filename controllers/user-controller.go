@@ -63,12 +63,19 @@ func Login(usersCollection *mongo.Collection) func(ctx *gin.Context) {
 			panic(err)
 		}
 
-		var user bson.M
+		// TODO: Check if no user found
+		var user LoginBody
 		if err := usersCollection.FindOne(context.TODO(), bson.M{"username": loginBody.Username}).Decode(&user); err != nil {
 			panic(err)
 		}
 
-		ctx.JSON(200, user)
+		hash := user.Password
+		if passed := CheckPasswordHash(loginBody.Password, hash); passed {
+			ctx.JSON(200, gin.H{"message": "Success"})
+			return
+		}
+
+		ctx.JSON(500, gin.H{"message": "Username or password did not match"})
 	}
 }
 
