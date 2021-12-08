@@ -42,8 +42,9 @@ func main() {
 		c.JSON(200, gin.H{"message": status})
 	})
 
-	ginServer.GET("/api/users/find", controllers.Find(usersCollection))
-	ginServer.GET("/api/users/register", controllers.Register(usersCollection))
+	ginServer.POST("/auth/find", controllers.Find(usersCollection))
+	ginServer.POST("/auth/register", controllers.Register(usersCollection))
+	ginServer.POST("/auth/login", controllers.Login(usersCollection))
 
 	ginServer.Run(":8080")
 }

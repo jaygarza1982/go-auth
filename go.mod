@@ -4,5 +4,6 @@ go 1.16
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	go.mongodb.org/mongo-driver v1.8.0 // indirect
+	go.mongodb.org/mongo-driver v1.8.0
+	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e
 )
