@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -79,6 +80,11 @@ func Login(usersCollection *mongo.Collection) func(ctx *gin.Context) {
 
 		hash := user.Password
 		if passed := CheckPasswordHash(loginBody.Password, hash); passed {
+			session := sessions.Default(ctx)
+
+			session.Set("username", loginBody.Username)
+			session.Save()
+
 			ctx.JSON(200, gin.H{"message": "Success"})
 			return
 		}
@@ -87,6 +93,17 @@ func Login(usersCollection *mongo.Collection) func(ctx *gin.Context) {
 	}
 }
 
+func Logout() func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		session := sessions.Default(ctx)
+		session.Clear()
+		session.Save()
+
+		ctx.JSON(200, gin.H{"message": "OK"})
+	}
+}
+
+// TODO: Search function for username
 func Find(usersCollection *mongo.Collection) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		var user bson.M

@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jaygarza1982/go-auth/controllers"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,6 +39,10 @@ func main() {
 
 	ginServer := gin.Default()
 
+	sessionSecret := os.Getenv("SESSION_SECRET")
+	store := cookie.NewStore([]byte(sessionSecret))
+	ginServer.Use(sessions.Sessions("session", store))
+
 	ginServer.GET("/", func(c *gin.Context) {
 		status := "Status is OK"
 		c.JSON(200, gin.H{"message": status})
@@ -45,6 +51,8 @@ func main() {
 	ginServer.POST("/auth/find", controllers.Find(usersCollection))
 	ginServer.POST("/auth/register", controllers.Register(usersCollection))
 	ginServer.POST("/auth/login", controllers.Login(usersCollection))
+	ginServer.POST("/auth/logout", controllers.Logout())
+	ginServer.GET("/auth/check", controllers.Check())
 
 	ginServer.Run(":8080")
 }
