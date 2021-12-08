@@ -63,9 +63,17 @@ func Login(usersCollection *mongo.Collection) func(ctx *gin.Context) {
 			panic(err)
 		}
 
-		// TODO: Check if no user found
+		userFind := usersCollection.FindOne(context.TODO(), bson.M{"username": loginBody.Username})
+
+		// If the operation was successful but did not return any documents
+		if userFind.Err() != nil {
+			ctx.JSON(500, gin.H{"message": "Username or password did not match"})
+			return
+		}
+
+		// Decode our found document
 		var user LoginBody
-		if err := usersCollection.FindOne(context.TODO(), bson.M{"username": loginBody.Username}).Decode(&user); err != nil {
+		if err := userFind.Decode(&user); err != nil {
 			panic(err)
 		}
 
